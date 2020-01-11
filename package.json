@@ -1,9 +1,9 @@
 {
   "name": "ypubsub",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a pub sub lib for decoupling function call",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/ypubsub.js",
+  "types": "dist/ypubsub.d.ts",
   "repository": "git@github.com:yangjuncode/ypubsub.git",
   "author": "yangjun <290968698@qq.com>",
   "license": "MIT",
