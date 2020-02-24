@@ -7,6 +7,10 @@
   "repository": "git@github.com:yangjuncode/ypubsub.git",
   "author": "yangjun <290968698@qq.com>",
   "license": "MIT",
+  "scripts": {
+    "tsc": "tsc",
+    "build": "yarn tsc && ./build.sh"
+  },
   "devDependencies": {
     "typescript": "^3.7.4"
   }
