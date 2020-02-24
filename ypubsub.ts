@@ -1,126 +1,102 @@
-export type TFns = Function[]
-export type TFnsMap = Map<string, TFns>
-export type TFnsIntMap = Map<number, TFns>
+type TFns = Function[]
+type subjectTypes = string | number
 
+export class PubSub<T extends subjectTypes> {
+  private events: Map<T, TFns>
 
-export class Tpubsub {
+  constructor() {
+    this.events = new Map<T, TFns>()
+  }
 
-  private fns: TFnsMap = new Map<string, TFns>()
-  private fnsOnce: TFnsMap = new Map<string, TFns>()
-  private fnsInt: TFnsIntMap = new Map<number, TFns>()
-  private fnsIntOnce: TFnsIntMap = new Map<number, TFns>()
+  private getEvents(key: T): TFns {
+    return this.events.get(key) || []
+  }
 
-  protected publishFn(subject: string, args: any[], fnsMap: TFnsMap) {
-    let fns: TFns = fnsMap.get(subject) || []
-    fns.forEach((fn: Function) => {
-      fn.apply(this, args)
+  private setEvents(key: T, value: TFns): void {
+    if (value.length) {
+      this.events.set(key, value)
+    } else {
+      this.events.delete(key)
+    }
+  }
+
+  publish(subject: T, ...args: any[]) {
+    const events: TFns = this.getEvents(subject)
+    for (let i = 0; i < events.length; i++) {
+      events[i].apply(this, args)
+    }
+  }
+
+  subscribe(subject: T | T[], cb: Function): void {
+    if (Array.isArray(subject)) {
+      subject.forEach((eventName) => {
+        this.subscribe(eventName, cb)
+      })
+      return
+    }
+
+    const fns: TFns = this.getEvents(subject)
+    if (!fns.includes(cb)) {
+      fns.push(cb)
+    }
+
+    this.setEvents(subject, fns)
+  }
+
+  subscribeOnce(subject: T, cb: Function): void {
+    // 包装事件回调，先解绑事件，再执行回调
+    const wrapper = (...args: any[]) => {
+      this.unsubscribe(subject, wrapper)
+      cb.apply(this, args)
+    }
+    wrapper.fn = cb
+
+    this.subscribe(subject, wrapper)
+  }
+
+  unsubscribe(subject?: T | T[], cb?: Function): void {
+    // 不传递参数，清空所有订阅事件
+    if (!arguments.length) {
+      this.events.clear()
+      return
+    }
+
+    // 如果解除的事件是数组，则循环解绑每个事件
+    if (Array.isArray(subject)) {
+      subject.forEach((eventName: T) => {
+        this.unsubscribe(eventName, cb)
+      })
+      return
+    }
+
+    // 解除单个订阅事件
+    // 如果没有传递回调，则解绑该事件所有订阅
+    const _subject: T = subject as T
+    if (!cb) {
+      this.setEvents(_subject, [])
+      return
+    }
+
+    // 查找对应的事件，并解绑订阅
+    let events: TFns = this.getEvents(_subject)
+    events = events.filter((method: Function) => {
+      // @ts-ignore
+      const _fn: Function | undefined = method.fn
+      return !(method === cb || _fn === cb)
     })
+
+    this.setEvents(_subject, events)
   }
 
-  publish(subject: string, ...args: any[]): void {
-    this.publishFn(subject, args, this.fns)
-    this.publishFn(subject, args, this.fnsOnce)
-
-    // delete fnsOnce register callback
-    this.fnsOnce.delete(subject)
-  }
-
-  subscribe(subject: string, Fn: Function): void {
-    let fns: TFns = this.fns.get(subject) || []
-    if (fns.includes(Fn)) {
-      return
-    }
-
-    fns.push(Fn)
-    this.fns.set(subject, fns)
-  }
-
-  subscribeOnce(subject: string, Fn: Function): void {
-    let fnsOnce: TFns = this.fnsOnce.get(subject) || []
-    if (fnsOnce.includes(Fn)) {
-      return
-    }
-
-    fnsOnce.push(Fn)
-    this.fnsOnce.set(subject, fnsOnce)
-  }
-
-  unsubscribe(subject: string, Fn?: Function): void {
-    if (!Fn) {
-      this.fns.delete(subject)
-      return
-    }
-    let fns: TFns = this.fns.get(subject) || []
-    if (!fns.includes(Fn)) {
-      return
-    }
-
-    fns = fns.filter((v) => {
-      return v !== Fn
-    })
-    this.fnsOnce.set(subject, fns)
-  }
-
-  protected publishFnInt(subject: number, args: any[], fnsIntMap: TFnsIntMap) {
-    let fns: TFns = fnsIntMap.get(subject) || []
-    fns.forEach((fn: Function) => {
-      fn.apply(this, args)
-    })
-  }
-
-  publishInt(subject: number, ...args: any[]): void {
-    this.publishFnInt(subject, args, this.fnsInt)
-    this.publishFnInt(subject, args, this.fnsIntOnce)
-
-    // delete fnsOnce register callback
-    this.fnsIntOnce.delete(subject)
-  }
-
-  subscribeInt(subject: number, Fn: Function): void {
-    let fns: TFns = this.fnsInt.get(subject) || []
-    if (fns.includes(Fn)) {
-      return
-    }
-
-    fns.push(Fn)
-    this.fnsInt.set(subject, fns)
-  }
-
-  subscribeOnceInt(subject: number, Fn: Function): void {
-    let fnsOnce: TFns = this.fnsIntOnce.get(subject) || []
-    if (fnsOnce.includes(Fn)) {
-      return
-    }
-
-    fnsOnce.push(Fn)
-    this.fnsIntOnce.set(subject, fnsOnce)
-  }
-
-  unsubscribeInt(subject: number, Fn?: Function): void {
-    if (!Fn) {
-      this.fnsInt.delete(subject)
-      return
-    }
-    let fns: TFns = this.fnsInt.get(subject) || []
-    if (!fns.includes(Fn)) {
-      return
-    }
-
-    fns = fns.filter((v) => {
-      return v !== Fn
-    })
-    this.fnsInt.set(subject, fns)
-
-  }
-
-  hasSubscribe(subject: string): boolean {
-    return this.fns.has(subject) || this.fnsOnce.has(subject)
-  }
-
-  hasSubscribeInt(subject: number): boolean {
-    return this.fnsInt.has(subject) || this.fnsIntOnce.has(subject)
-
+  hasSubscribe(subject: T): boolean {
+    return this.getEvents(subject).length > 0
   }
 }
 
-export default new Tpubsub()
+export const IntPubSub = new PubSub<number>()
+export const StrPubSub = new PubSub<string>()
+
+export default {
+  IntPubSub,
+  StrPubSub,
+}
