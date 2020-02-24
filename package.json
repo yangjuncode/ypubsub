@@ -1,13 +1,16 @@
 {
   "name": "ypubsub",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "a pub sub lib for decoupling function call",
   "main": "dist/ypubsub.js",
   "types": "dist/ypubsub.d.ts",
   "repository": "git@github.com:yangjuncode/ypubsub.git",
   "author": "yangjun <290968698@qq.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.5"
   }
 }
