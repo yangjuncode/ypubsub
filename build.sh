@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+outputDir="dist"
+rm -rf $outputDir
+binDir="node_modules/.bin"
+$binDir/tsc
+
 mainName=$(
   cat package.json \
   | grep main \
@@ -20,7 +25,6 @@ typesName=$(
 )
 echo types file: $typesName
 
-outputDir="dist"
 cd $outputDir
 mv ./*.d.ts $typesName
 mv ./*.js $mainName
