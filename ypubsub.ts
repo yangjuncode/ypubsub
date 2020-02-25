@@ -27,10 +27,10 @@ export class PubSub<T extends subjectTypes> {
     }
   }
 
-  subscribe(subject: T | T[], cb: Function): void {
+  subscribe(subject: T | T[], cb: Function, timeoutSecs?: number): void {
     if (Array.isArray(subject)) {
-      subject.forEach((eventName) => {
-        this.subscribe(eventName, cb)
+      subject.forEach((eventName: T) => {
+        this.subscribe(eventName, cb, timeoutSecs)
       })
       return
     }
@@ -41,9 +41,16 @@ export class PubSub<T extends subjectTypes> {
     }
 
     this.setEvents(subject, fns)
+
+    // 添加超时解绑订阅事件
+    if (timeoutSecs) {
+      setTimeout(() => {
+        this.unsubscribe(subject, cb)
+      }, timeoutSecs * 1000)
+    }
   }
 
-  subscribeOnce(subject: T, cb: Function): void {
+  subscribeOnce(subject: T, cb: Function, timeoutSecs?: number): void {
     // 包装事件回调，先解绑事件，再执行回调
     const wrapper = (...args: any[]) => {
       this.unsubscribe(subject, wrapper)
@@ -51,7 +58,7 @@ export class PubSub<T extends subjectTypes> {
     }
     wrapper.fn = cb
 
-    this.subscribe(subject, wrapper)
+    this.subscribe(subject, wrapper, timeoutSecs)
   }
 
   unsubscribe(subject?: T | T[], cb?: Function): void {
