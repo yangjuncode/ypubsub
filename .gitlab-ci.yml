@@ -1,0 +1,28 @@
+stages:
+  #  - build
+  - npm-publish
+
+compile:
+  stage: build
+  tags:
+    - 10.20.30.5
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  script:
+    - yarn
+    - yarn build
+
+
+deploy:
+  stage: npm-publish
+  tags:
+    - 10.20.30.5
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      changes:
+        - package.json
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - export myverion=$(node -p "require('./package.json').version")
+    - export npmversion=$(npm show jsyrpc version)
+    - if [ "$myversion" != "$npmversion" ]; then yarn ; yarn build; npm publish --access public; fi
