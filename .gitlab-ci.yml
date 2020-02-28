@@ -1,6 +1,6 @@
 stages:
   - build
-  - npm-publish
+  - publish
 
 compile:
   stage: build
@@ -13,8 +13,8 @@ compile:
     - yarn build
 
 
-deploy:
-  stage: npm-publish
+publish:
+  stage: publish
   tags:
     - 10.20.30.5
   rules:
