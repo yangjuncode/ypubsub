@@ -1,6 +1,7 @@
 stages:
   - build
-  - publish
+  #  - publish
+  - publish-test
 
 compile:
   stage: build
@@ -26,3 +27,19 @@ publish:
     - export myverion=$(node -p "require('./package.json').version")
     - export npmversion=$(npm show jsyrpc version)
     - if [ "$myversion" != "$npmversion" ]; then yarn ; yarn build; npm publish --access public; fi
+
+
+publish-test:
+  stage: publish-test
+  tags:
+    - 10.20.30.5
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "4-ci-npm"'
+      changes:
+        - package.json
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - export myverion=$(node -p "require('./package.json').version")
+    - export npmversion=$(npm show jsyrpc version)
+    - echo myversion=$myversion
+    - echo npmversion=$npmversion
