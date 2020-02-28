@@ -1,6 +1,6 @@
 {
   "name": "ypubsub",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "a pub sub lib for decoupling function call",
   "main": "dist/ypubsub.js",
   "types": "dist/ypubsub.d.ts",
