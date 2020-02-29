@@ -9,6 +9,11 @@ compile:
     - 10.20.30.5
   rules:
     - if: $CI_MERGE_REQUEST_ID
+  # 缓存当前Job结果，以供下个Job使用
+  artifacts:
+    name: "${$CI_PIPELINE_ID}"
+    paths:
+      - dist/
   script:
     - yarn
     - yarn build
