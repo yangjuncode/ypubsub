@@ -32,5 +32,5 @@ publish:
   script:
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - export myversion=$(node -p "require('./package.json').version")
-    - export npmversion=$(npm show jsyrpc version)
+    - export npmversion=$(npm show ypubsub version)
     - if [ "$myversion" != "$npmversion" ]; then yarn ; yarn build; npm publish --access public; fi
