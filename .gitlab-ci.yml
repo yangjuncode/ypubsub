@@ -9,10 +9,10 @@ compile:
   rules:
     - if: $CI_MERGE_REQUEST_ID
   # 缓存当前Job结果，以供下个Job使用
-  artifacts:
-    name: $CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.$CI_COMMIT_SHA
-    paths:
-      - dist/
+  #  artifacts:
+  #    name: $CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.$CI_COMMIT_SHA
+  #    paths:
+  #      - dist/
   script:
     - yarn
     - yarn build
@@ -22,16 +22,15 @@ publish:
   stage: publish
   tags:
     - 10.20.30.5
-  # 从上一个Job中读取结果
-  dependencies:
-    - compile
+  #  # 从上一个Job中读取结果
+  #  dependencies:
+  #    - compile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       changes:
         - package.json
   script:
-    - ls -l ./dist
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - export myversion=$(node -p "require('./package.json').version")
     - export npmversion=$(npm show jsyrpc version)
-    - if [ "$myversion" != "$npmversion" ]; then npm publish --access public; fi
+    - if [ "$myversion" != "$npmversion" ]; then yarn ; yarn build; npm publish --access public; fi
