@@ -39,7 +39,7 @@ publish-test:
         - package.json
   script:
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - export myverion=$(node -p "require('./package.json').version")
+    - export myversion=$(node -p "require('./package.json').version")
     - echo myversion=$myversion
     - export npmversion=$(npm show jsyrpc version)
     - echo npmversion=$npmversion
