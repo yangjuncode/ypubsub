@@ -34,7 +34,7 @@ publish-test:
   tags:
     - 10.20.30.5
   dependencies:
-    - build
+    - compile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "4-ci-npm"'
       changes:
