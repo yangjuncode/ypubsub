@@ -11,7 +11,7 @@ compile:
     - if: $CI_MERGE_REQUEST_ID
   # 缓存当前Job结果，以供下个Job使用
   artifacts:
-    name: "${$CI_PIPELINE_ID}"
+    name: $CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.$CI_COMMIT_SHA
     paths:
       - dist/
   script:
