@@ -38,6 +38,7 @@ publish-test:
   stage: publish-test
   tags:
     - 10.20.30.5
+  # 从上一个Job中读取结果
   dependencies:
     - compile
   rules:
@@ -49,3 +50,4 @@ publish-test:
     - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
     - export myversion=$(node -p "require('./package.json').version")
     - export npmversion=$(npm show jsyrpc version)
+    - if [ "$myversion" != "$npmversion" ]; then npm publish --access public; fi
