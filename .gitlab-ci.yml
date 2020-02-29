@@ -1,7 +1,6 @@
 stages:
   - build
-  #  - publish
-  - publish-test
+  - publish
 
 compile:
   stage: build
@@ -19,30 +18,15 @@ compile:
     - yarn build
 
 
-.publish:
+publish:
   stage: publish
-  tags:
-    - 10.20.30.5
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      changes:
-        - package.json
-  script:
-    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
-    - export myverion=$(node -p "require('./package.json').version")
-    - export npmversion=$(npm show jsyrpc version)
-    - if [ "$myversion" != "$npmversion" ]; then yarn ; yarn build; npm publish --access public; fi
-
-
-publish-test:
-  stage: publish-test
   tags:
     - 10.20.30.5
   # 从上一个Job中读取结果
   dependencies:
     - compile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "4-ci-npm"'
+    - if: '$CI_COMMIT_REF_NAME == "master"'
       changes:
         - package.json
   script:
